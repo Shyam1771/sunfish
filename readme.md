@@ -1,28 +1,84 @@
-# ♟️ Sunfish Chess Engine – Project Presentation 
+# Sunfish - A Lightweight Python Chess Engine
 
-## 📌 Introduction
+Sunfish is a simple yet effective chess engine written in pure Python. It's designed with clarity and minimalism in mind, making it one of the best engines to study and understand the inner workings of chess engines. Despite its simplicity, it implements powerful techniques such as alpha-beta pruning, positional evaluation, and efficient board representation.
 
-**Sunfish** is a minimalist yet powerful chess engine written in under 150 lines of Python. Despite its simplicity, it achieves a playing strength of over **2000 ELO** on Lichess and provides an excellent platform for learning and experimenting with chess engine internals.
+## Table of Contents
+
+- [About the Project](#about-the-project)
+- [Core Concepts](#core-concepts)
+- [Evaluation Function](#evaluation-function)
+- [Board Representation](#board-representation)
+- [Move Generation](#move-generation)
+- [Search Algorithm](#search-algorithm)
+- [Engine Architecture](#engine-architecture)
+- [How to Run](#how-to-run)
+- [Sample Game Interaction](#sample-game-interaction)
+- [Understanding the Output](#understanding-the-output)
+- [Performance](#performance)
+- [Limitations](#limitations)
+- [Future Improvements](#future-improvements)
+- [Learning Resources](#learning-resources)
+- [License](#license)
+- [Credits](#credits)
 
 ---
 
-## 🧠 1. What is Sunfish?
+## About the Project
 
-Sunfish stands out due to:
-- **Compact design**: ~131 lines of Python code.
-- **Educational value**: Great for learning AI search algorithms and evaluation functions.
-- **Experimentation**: Used in testing neural nets, parallel search, and engine optimization.
+Sunfish was originally created to demonstrate the basics of a chess engine in under 500 lines of Python. It is capable of playing legal chess moves, performing search and evaluation, and generating reasonable responses against human players.
+
+This version is an enhanced and annotated version of the original engine, intended for learning and experimenting. It is an excellent choice for:
+
+- Students learning about AI and game theory
+- Developers curious about chess engine design
+- Hobbyists looking to build their own chess bot
 
 ---
 
-## ⚙️ 2. How Does It Work?
+## Core Concepts
 
-- **Search Algorithm**: Uses the *MTD-bi* (Memory-enhanced Test Driver with zero-width window) algorithm, also called **NegaC\***.
-- **Evaluation Function**: Based on **Piece-Square Tables**, assigning scores to pieces based on their position.
-- **Data Structures**: Uses simple Python lists and dictionaries for board representation and move generation.
--It is basically chess game. you need to enter your move(ex: e5/d3). After that computer play with you as your opponent.
+### 1. Board Representation
 
-## 🧪 3. Playing Strength
-- **Strengths**: Efficient positional play due to PST-based evaluation.
-- **Weaknesses**: Limited tactical depth and no advanced pruning technique.
+Sunfish uses a *120-square board* (a technique also used in professional engines like Stockfish). It pads an 8×8 board inside a 10×12 grid, allowing easy detection of off-board moves.
 
+- Legal board indices: 21 to 98 (excluding border)
+- Each square contains a piece code (e.g., 'P', 'k', '.')
+- Pieces are represented as single characters:
+  - Uppercase = White ('P', 'N', 'B', 'R', 'Q', 'K')
+  - Lowercase = Black ('p', 'n', 'b', 'r', 'q', 'k')
+
+### 2. Positional Evaluation
+
+Each piece has a *base value*:
+- Pawn: 100
+- Knight: 300
+- Bishop: 320
+- Rook: 500
+- Queen: 900
+- King: 20000 (arbitrary high for game-end conditions)
+
+Each piece also receives a *positional bonus* using piece-square tables (PSTs), which give extra weight to central control, safety, or promotion potential.
+
+### 3. Move Generation
+
+Legal moves are generated using pre-defined directions and offsets:
+- Pawns can move forward or capture diagonally
+- Sliding pieces (bishop, rook, queen) repeat steps in a direction until blocked
+- Special moves like castling and en-passant may be added manually
+
+---
+
+## Evaluation Function
+
+The engine evaluates positions based on:
+- *Material Balance:* Sum of the values of all remaining pieces
+- *Positional Bonuses:* Piece-square table values based on the piece’s location
+- *Turn Modifier:* Positive score for white, negative for black
+
+This makes the engine prefer development, central control, and mobility.
+
+Example:
+```python
+score = material_score + positional_bonus
+if not white_to_move:
+    score = -score
