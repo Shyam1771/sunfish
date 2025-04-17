@@ -62,4 +62,42 @@ This move is returned as the *best move* to play.
 
 ---
 
-### Summary (Pseudocode)
+## 7. *How Evaluation Score Is Calculated*
+
+The evaluation score in the Sunfish engine helps determine how good or bad a position is for the current player. This score is a combination of *material value* and *positional bonuses*. Here’s a breakdown of how the evaluation is calculated:
+
+---
+
+### 8. *Material Score*
+
+Each piece is assigned a numerical value, commonly used in chess engines:
+
+| Piece  | Symbol | Value  |
+|--------|--------|--------|
+| Pawn   | 'P'    | 100    |
+| Knight | 'N'    | 300    |
+| Bishop | 'B'    | 325    |
+| Rook   | 'R'    | 500    |
+| Queen  | 'Q'    | 900    |
+| King   | 'K'    | 0 (not counted) |
+
+- For example, a position with 2 white pawns, 1 white rook, and 1 black queen would score:
+  - White: 2×100 + 500 = *700*
+  - Black: 900
+  - Final score = *700 - 900 = -200* (white is losing by 200)
+
+---
+
+### 9. *Positional Bonus (Piece-Square Tables)*
+
+For each piece type, a *Piece-Square Table (PST)* is used. This is an 8×8 grid that assigns a small bonus or penalty to each square on the board.
+
+- These tables reward:
+  - Pawns that are advanced or on central files
+  - Knights in the center
+  - Bishops on long diagonals
+  - Rooks on open files
+  - King safety (castled, away from center)
+
+*Example (Pawns)*:  
+The pawn PST gives higher values to central and advanced squares:
