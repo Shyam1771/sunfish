@@ -1,6 +1,4 @@
-https://drive.google.com/file/d/18IXcpEuvuynxpK-X20gjWy4TZsL2TQ77/view?usp=drive_link
 
-https://drive.google.com/file/d/18IXcpEuvuynxpK-X20gjWy4TZsL2TQ77/view?usp=drive_link
 ## How the Engine Decides Its Next Move
 
 The core logic of Sunfish revolves around simulating future moves and evaluating the resulting positions to find the best move. This is done using the *Minimax algorithm with Alpha-Beta Pruning*.
