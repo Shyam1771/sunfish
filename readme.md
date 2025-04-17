@@ -1,84 +1,65 @@
-# Sunfish - A Lightweight Python Chess Engine
+## How the Engine Decides Its Next Move
 
-Sunfish is a simple yet effective chess engine written in pure Python. It's designed with clarity and minimalism in mind, making it one of the best engines to study and understand the inner workings of chess engines. Despite its simplicity, it implements powerful techniques such as alpha-beta pruning, positional evaluation, and efficient board representation.
+The core logic of Sunfish revolves around simulating future moves and evaluating the resulting positions to find the best move. This is done using the *Minimax algorithm with Alpha-Beta Pruning*.
 
-## Table of Contents
-
-- [About the Project](#about-the-project)
-- [Core Concepts](#core-concepts)
-- [Evaluation Function](#evaluation-function)
-- [Board Representation](#board-representation)
-- [Move Generation](#move-generation)
-- [Search Algorithm](#search-algorithm)
-- [Engine Architecture](#engine-architecture)
-- [How to Run](#how-to-run)
-- [Sample Game Interaction](#sample-game-interaction)
-- [Understanding the Output](#understanding-the-output)
-- [Performance](#performance)
-- [Limitations](#limitations)
-- [Future Improvements](#future-improvements)
-- [Learning Resources](#learning-resources)
-- [License](#license)
-- [Credits](#credits)
+### Step-by-Step Logic of Finding the Best Move
 
 ---
 
-## About the Project
+### 1. *Move Generation*
+Sunfish first generates all pseudo-legal moves available to the current player. This includes:
+- Normal piece movements
+- Captures
+- Pawn promotions
 
-Sunfish was originally created to demonstrate the basics of a chess engine in under 500 lines of Python. It is capable of playing legal chess moves, performing search and evaluation, and generating reasonable responses against human players.
-
-This version is an enhanced and annotated version of the original engine, intended for learning and experimenting. It is an excellent choice for:
-
-- Students learning about AI and game theory
-- Developers curious about chess engine design
-- Hobbyists looking to build their own chess bot
+Note: Special rules like castling or en-passant are typically not included in the base version.
 
 ---
 
-## Core Concepts
-
-### 1. Board Representation
-
-Sunfish uses a *120-square board* (a technique also used in professional engines like Stockfish). It pads an 8×8 board inside a 10×12 grid, allowing easy detection of off-board moves.
-
-- Legal board indices: 21 to 98 (excluding border)
-- Each square contains a piece code (e.g., 'P', 'k', '.')
-- Pieces are represented as single characters:
-  - Uppercase = White ('P', 'N', 'B', 'R', 'Q', 'K')
-  - Lowercase = Black ('p', 'n', 'b', 'r', 'q', 'k')
-
-### 2. Positional Evaluation
-
-Each piece has a *base value*:
-- Pawn: 100
-- Knight: 300
-- Bishop: 320
-- Rook: 500
-- Queen: 900
-- King: 20000 (arbitrary high for game-end conditions)
-
-Each piece also receives a *positional bonus* using piece-square tables (PSTs), which give extra weight to central control, safety, or promotion potential.
-
-### 3. Move Generation
-
-Legal moves are generated using pre-defined directions and offsets:
-- Pawns can move forward or capture diagonally
-- Sliding pieces (bishop, rook, queen) repeat steps in a direction until blocked
-- Special moves like castling and en-passant may be added manually
+### 2. *Simulation of Each Move*
+For every generated move:
+- The engine simulates the move by creating a new position with that move applied.
+- This new position becomes the input for the next step in the decision tree.
 
 ---
 
-## Evaluation Function
+### 3. *Recursive Evaluation (Minimax)*
+The engine calls the search function recursively to evaluate each resulting position:
 
-The engine evaluates positions based on:
-- *Material Balance:* Sum of the values of all remaining pieces
-- *Positional Bonuses:* Piece-square table values based on the piece’s location
-- *Turn Modifier:* Positive score for white, negative for black
+- If it's the engine’s turn again (after the opponent moves), it tries to *maximize* the score.
+- If it's the opponent's turn, the engine tries to *minimize* the score.
 
-This makes the engine prefer development, central control, and mobility.
+This recursion continues until a certain depth is reached (e.g., 3 or 4 plies), after which a static evaluation is performed.
 
-Example:
-```python
-score = material_score + positional_bonus
-if not white_to_move:
-    score = -score
+---
+
+### 4. *Static Evaluation*
+At the deepest level of recursion (leaf nodes), the engine evaluates the board using the following:
+- *Material Score*: Total value of pieces on board (e.g., pawn=100, queen=900).
+- *Positional Bonus*: Values from piece-square tables (PSTs), giving extra score for:
+  - Central control
+  - Advanced pawns
+  - Knight outposts
+  - King safety, etc.
+
+This combined score reflects how "good" a position is for the current player.
+
+---
+
+### 5. *Alpha-Beta Pruning*
+To make the engine efficient:
+- If one move already proves to be worse than a previously evaluated option, it stops checking further (prunes the branch).
+- This prevents the engine from evaluating every possible outcome and saves computation.
+
+---
+
+### 6. *Select the Best Move*
+When all moves have been evaluated:
+- The engine picks the move with the *highest score* if it's its own turn.
+- Or the move that results in the *lowest score* for the opponent.
+
+This move is returned as the *best move* to play.
+
+---
+
+### Summary (Pseudocode)
